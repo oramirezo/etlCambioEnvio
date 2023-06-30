@@ -55,7 +55,7 @@ class appTools:
 
     def cifras_control(self, db_table_name, start_datetime,
                        start_datetime_proc, end_datetime_proc, error_id,
-                       error_description, process_name):
+                       error_description, process_name,):
         if CIFRAS_ERROR_LOG:
             try:
                 db_table_name = db_table_name.split('.')
@@ -81,7 +81,7 @@ class appTools:
                 des_proceso = nom_proceso
 
                 ctrl_cfrs = {
-                    'id_proceso': 1,
+                    'id_proceso': 7,
                     'nom_grupo': self.id_generator(),
                     'nom_tabla': table_name,
                     'nom_fuente': 'cobranza',
@@ -108,7 +108,47 @@ class appTools:
                 print(f'[error] cifras_control. {e}')
                 ctrl_cfrs = None
             return ctrl_cfrs
+    def cifras_controlError(self, start_datetime,
+                       start_datetime_proc, end_datetime_proc, error_id,
+                       error_description, process_name,des_proceso,fuente):
+        if CIFRAS_ERROR_LOG:
+            try:
+                if error_description:
+                    des_error = f'{ERROR_TYPE[error_id]}-{error_description}'
+                    des_error = des_error[0:149]
+                else:
+                    des_error = ''
 
+
+
+                ctrl_cfrs = {
+                    'id_proceso': 7,
+                    'nom_grupo': self.id_generator(),
+                    'nom_tabla': process_name,
+                    'nom_fuente': fuente,
+                    'nom_proceso': process_name,
+                    'des_proceso': des_proceso,
+                    'des_capa': 'la',
+                    'nom_usuario': str(os.getlogin()),
+                    'fec_inicio': start_datetime,
+                    'fec_fin': '',
+                    'fec_proceso_inicio': start_datetime_proc,
+                    'fec_proceso_fin': end_datetime_proc,
+                    'num_registros': '0',
+                    'num_error': int(error_id[0]),
+                    'des_error': des_error,
+                    'num_advertencia': 0,
+                    'des_advertencia': '',
+                    'des_estatus': ''}
+                if error_description:
+                    ctrl_cfrs['des_estatus'] = 'ERROR'
+                else:
+                    ctrl_cfrs['des_estatus'] = 'OK'
+
+            except Exception as e:
+                print(f'[error] cifras_control. {e}')
+                ctrl_cfrs = None
+            return ctrl_cfrs
     def error_logger(self, ctrl_cif):
         if CIFRAS_ERROR_LOG and ctrl_cif:
             try:
